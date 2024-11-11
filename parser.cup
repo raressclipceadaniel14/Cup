@@ -21,7 +21,7 @@ init with {:
   ComplexSymbolFactory f = new ComplexSymbolFactory();
   symbolFactory = f;
   File file = new File("input.txt");
-  FileInputStream fis = null;
+  FileInputStream fis = null;`
   try {
     fis = new FileInputStream(file);
   } catch (IOException e) {
@@ -93,7 +93,7 @@ precedence left UMINUS;
 
 				/* The grammar rules */
 xhtml_document ::= doctype:doc html_element:he {: 
-				System.out.println("xhtml_document");
+				System.out.println("xhtml document");
 				:}
 				;
 
@@ -102,38 +102,38 @@ doctype ::= OPEN_TAG DOCTYPE CLOSE_TAG {: System.out.println("doctype"); :}
 
 html_start ::= OPEN_TAG HTML CLOSE_TAG 
 			{: 
-			System.out.println("html_start");
+			System.out.println("html start");
 			:}
 			;
 			
-html_end ::= OPEN_CLOSING_TAG HTML CLOSE_TAG {: System.out.println("html_end"); :}
+html_end ::= OPEN_CLOSING_TAG HTML CLOSE_TAG {: System.out.println("html end"); :}
 			;
 			
 html_element ::= html_start:hs head_element: ht body_element: bt html_end:he {: 
-				System.out.println("html_element");
+				System.out.println("html element");
 				:}
 				;
 				
 head_element ::= head_start:hs tag_element_list:tel head_end: he {:
-				System.out.println("head_content");
+				System.out.println("head content");
 				:}
 				;
 
-head_start ::= OPEN_TAG HEAD CLOSE_TAG {:  System.out.println("head_start"); :}
+head_start ::= OPEN_TAG HEAD CLOSE_TAG {:  System.out.println("head start"); :}
 			;
 			
-head_end ::= OPEN_CLOSING_TAG HEAD CLOSE_TAG {:  System.out.println("head_end"); :}
+head_end ::= OPEN_CLOSING_TAG HEAD CLOSE_TAG {:  System.out.println("head end"); :}
 			;
 
 body_element ::= body_start:hs tag_element_list:tel body_end: he {:
-				System.out.println("head_content");
+				System.out.println("body content");
 				:}
 				;
 				
-body_start ::= OPEN_TAG BODY CLOSE_TAG {:  System.out.println("head_start"); :}
+body_start ::= OPEN_TAG BODY CLOSE_TAG {:  System.out.println("body start"); :}
 			;
 			
-body_end ::= OPEN_CLOSING_TAG BODY CLOSE_TAG {:  System.out.println("head_end"); :} 
+body_end ::= OPEN_CLOSING_TAG BODY CLOSE_TAG {:  System.out.println("body end"); :} 
 			;
 			
 tag_element_list ::= tag_open_element:toe tag_element_list:tel1 tag_close_element:tce tag_element_list:tel2 

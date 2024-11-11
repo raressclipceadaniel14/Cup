@@ -1198,7 +1198,7 @@ class CUP$Parser$actions {
 		Object he = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		//@@CUPDBG3
  
-				System.out.println("xhtml_document");
+				System.out.println("xhtml document");
 				
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("xhtml_document",0, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1234,7 +1234,7 @@ class CUP$Parser$actions {
               Object RESULT =null;
 		//@@CUPDBG5
  
-			System.out.println("html_start");
+			System.out.println("html start");
 			
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("html_start",2, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1245,7 +1245,7 @@ class CUP$Parser$actions {
             {
               Object RESULT =null;
 		//@@CUPDBG6
- System.out.println("html_end"); 
+ System.out.println("html end"); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("html_end",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1268,7 +1268,7 @@ class CUP$Parser$actions {
 		Object he = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		//@@CUPDBG7
  
-				System.out.println("html_element");
+				System.out.println("html element");
 				
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("html_element",4, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1289,7 +1289,7 @@ class CUP$Parser$actions {
 		Object he = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		//@@CUPDBG8
 
-				System.out.println("head_content");
+				System.out.println("head content");
 				
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("head_element",9, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1300,7 +1300,7 @@ class CUP$Parser$actions {
             {
               Object RESULT =null;
 		//@@CUPDBG9
-  System.out.println("head_start"); 
+  System.out.println("head start"); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("head_start",5, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1310,7 +1310,7 @@ class CUP$Parser$actions {
             {
               Object RESULT =null;
 		//@@CUPDBG10
-  System.out.println("head_end"); 
+  System.out.println("head end"); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("head_end",6, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1330,7 +1330,7 @@ class CUP$Parser$actions {
 		Object he = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		//@@CUPDBG11
 
-				System.out.println("head_content");
+				System.out.println("body content");
 				
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("body_element",10, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1341,7 +1341,7 @@ class CUP$Parser$actions {
             {
               Object RESULT =null;
 		//@@CUPDBG12
-  System.out.println("head_start"); 
+  System.out.println("body start"); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("body_start",7, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1351,7 +1351,7 @@ class CUP$Parser$actions {
             {
               Object RESULT =null;
 		//@@CUPDBG13
-  System.out.println("head_end"); 
+  System.out.println("body end"); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("body_end",8, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
