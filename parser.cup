@@ -14,6 +14,11 @@ import java.util.List;
 
 parser code {:
   protected Lexer lexer;
+  protected HtmlEl root;
+	
+  public HtmlEl getRootHtmlEl() {
+	return root;
+  }
 :}
 
 /* define how to connect to the scanner! */
@@ -21,7 +26,7 @@ init with {:
   ComplexSymbolFactory f = new ComplexSymbolFactory();
   symbolFactory = f;
   File file = new File("input.txt");
-  FileInputStream fis = null;`
+  FileInputStream fis = null;
   try {
     fis = new FileInputStream(file);
   } catch (IOException e) {
@@ -56,13 +61,13 @@ terminal Integer	NUMBER;        // our scanner provides numbers as integers
 terminal String  	STRING; 
 /* Non terminals */
 
-non terminal xhtml_document;
+non terminal HtmlEl xhtml_document;
 non terminal doctype;
 
 non terminal html_start; 
 non terminal html_end; 
 
-non terminal html_element;
+non terminal HtmlEl html_element;
 
 non terminal head_start; 
 non terminal head_end;
@@ -71,17 +76,17 @@ non terminal body_start;
 non terminal body_end;
 
 
-non terminal head_element;
-non terminal body_element;
-non terminal attribute_list;
-non terminal attribute;
-non terminal attribute_content;
-non terminal attribute_name;
-non terminal tag_open_name;
-non terminal tag_close_element;
-non terminal tag_open_element;
-non terminal tag_element_list;
-non terminal tag_inner_text;
+non terminal HtmlEl head_element;
+non terminal HtmlEl body_element;
+non terminal HtmlEl attribute_list;
+non terminal HtmlEl attribute;
+non terminal HtmlEl attribute_content;
+non terminal HtmlEl attribute_name;
+non terminal HtmlEl tag_open_name;
+non terminal HtmlEl tag_close_element;
+non terminal HtmlEl tag_open_element;
+non terminal HtmlEl tag_element_list;
+non terminal HtmlEl tag_inner_text;
 
 non terminal            expr_list;
 non terminal Integer    expr;
@@ -93,504 +98,745 @@ precedence left UMINUS;
 
 				/* The grammar rules */
 xhtml_document ::= doctype:doc html_element:he {: 
-				System.out.println("xhtml document");
+				System.out.println("xhtml_document");
+
+				HtmlEl rootHtmlEl = HtmlEl.createHtmlEl("Document", he);
+				root = rootHtmlEl;
+				RESULT = rootHtmlEl;
 				:}
 				;
 
-doctype ::= OPEN_TAG DOCTYPE CLOSE_TAG {: System.out.println("doctype"); :}
+doctype ::= OPEN_TAG DOCTYPE CLOSE_TAG {: System.out.println("doctype declaration"); :}
 		 ;
 
 html_start ::= OPEN_TAG HTML CLOSE_TAG 
 			{: 
-			System.out.println("html start");
+			System.out.println("html_start declaration");
 			:}
 			;
 			
-html_end ::= OPEN_CLOSING_TAG HTML CLOSE_TAG {: System.out.println("html end"); :}
+html_end ::= OPEN_CLOSING_TAG HTML CLOSE_TAG {: System.out.println("html_end declaration"); :}
 			;
 			
 html_element ::= html_start:hs head_element: ht body_element: bt html_end:he {: 
-				System.out.println("html element");
+				System.out.println("html_element declaration");
+
+				RESULT = HtmlEl.createHtmlEl("Html", ht, bt);
 				:}
 				;
 				
 head_element ::= head_start:hs tag_element_list:tel head_end: he {:
-				System.out.println("head content");
+				System.out.println("head_content declaration");
+
+				RESULT = HtmlEl.createHtmlEl("Head", tel);
 				:}
 				;
 
-head_start ::= OPEN_TAG HEAD CLOSE_TAG {:  System.out.println("head start"); :}
+head_start ::= OPEN_TAG HEAD CLOSE_TAG {:  System.out.println("head_start declaration"); :}
 			;
 			
-head_end ::= OPEN_CLOSING_TAG HEAD CLOSE_TAG {:  System.out.println("head end"); :}
+head_end ::= OPEN_CLOSING_TAG HEAD CLOSE_TAG {:  System.out.println("head_end declaration"); :}
 			;
 
 body_element ::= body_start:hs tag_element_list:tel body_end: he {:
-				System.out.println("body content");
+				System.out.println("head_content declaration");
+
+				RESULT = HtmlEl.createHtmlEl("Body", tel);
 				:}
 				;
 				
-body_start ::= OPEN_TAG BODY CLOSE_TAG {:  System.out.println("body start"); :}
+body_start ::= OPEN_TAG BODY CLOSE_TAG {:  System.out.println("head_start declaration"); :}
 			;
 			
-body_end ::= OPEN_CLOSING_TAG BODY CLOSE_TAG {:  System.out.println("body end"); :} 
+body_end ::= OPEN_CLOSING_TAG BODY CLOSE_TAG {:  System.out.println("head_end declaration"); :} 
 			;
 			
 tag_element_list ::= tag_open_element:toe tag_element_list:tel1 tag_close_element:tce tag_element_list:tel2 
 					{:
-						System.out.println("tag list 1");
+						System.out.println("tag_element_list declaration 1");
+						//RESULT = HtmlEl.createHtmlEl("Tag HtmlEl List 1", toe, tel1, tce);
+						RESULT = HtmlEl.createHtmlEl("tel", toe, tel1, tce);
+						RESULT.addBrother(tel2);
 					:}
 					|	tag_open_element:toe tag_element_list:tel1 tag_close_element:tce
 					{:
-						System.out.println("tag list 2");
+						System.out.println("tag_element_list declaration 2");
+						//RESULT = HtmlEl.createHtmlEl("Tag HtmlEl List 2", toe, tel1, tce);
+						RESULT = HtmlEl.createHtmlEl("tel", toe, tel1, tce);
 					:}
 					|	tag_open_element:toe tag_inner_text:tit tag_close_element:tce tag_element_list:tel
 					{:
-						System.out.println("tag list 3");
+						System.out.println("tag_element_list declaration 3");
+						toe.addChild(tit);
+						//RESULT = HtmlEl.createHtmlEl("Tag HtmlEl List 3", toe, tce);
+						RESULT = HtmlEl.createHtmlEl("tel", toe, tce);
+						RESULT.addBrother(tel);
 					:}
 					|	tag_open_element:toe tag_inner_text:tit tag_close_element:tce
 					{:
-						System.out.println("tag list 4");
+						System.out.println("tag_element_list declaration 4");
+						toe.addChild(tit);
+						//RESULT = HtmlEl.createHtmlEl("Tag HtmlEl List 4", toe, tce);
+						RESULT = HtmlEl.createHtmlEl("tel", toe, tce);
 					:}
 					|	tag_open_element:toe tag_inner_text:tit tag_element_list:tel tag_close_element:tce
 					{:
-						System.out.println("tag list 4");
+						System.out.println("tag_element_list declaration 4");
+						toe.addChild(tit);
+						//RESULT = HtmlEl.createHtmlEl("Tag HtmlEl List 4", toe, tce);
+						RESULT = HtmlEl.createHtmlEl("tel", toe, tce, tel);
 					:}
 					|	tag_open_element:toe tag_close_element:tce
 					{:
-						System.out.println("tag list 5");
+						System.out.println("tag_element_list declaration 5");
+						//RESULT = HtmlEl.createHtmlEl("Tag HtmlEl List 5", toe, tce);
+						RESULT = HtmlEl.createHtmlEl("tel", toe, tce);
 					:}
 					;
 
 tag_inner_text ::=	STRING:s 	{: 
 				System.out.println("String Text"); 
+				RESULT = HtmlEl.createHtmlEl("Text");
 				:}
 				|	NUMBER:n 	{: 
 				System.out.println("Number Text");
+				RESULT = HtmlEl.createHtmlEl("Text");
 				:}
 				;
 
 tag_open_element ::= OPEN_TAG tag_open_name:ton attribute_list:al CLOSE_TAG 
 					{: 
-						System.out.println("tag open 1"); 
+						System.out.println("tag_open_element declaration 1"); 
+						//ton.setChildren(List.of(al));
+						RESULT = HtmlEl.createHtmlEl(ton.getData(), ton, al);
 					:}
 				  |	OPEN_TAG tag_open_name:ton CLOSE_TAG 
 					{: 
-						System.out.println("tag open 2"); 
+						System.out.println("tag_open_element declaration 2"); 
+						RESULT = HtmlEl.createHtmlEl(ton.getData(), ton);
 					:}
 					;
 				  		
 tag_close_element ::= OPEN_CLOSING_TAG tag_open_name:tcn CLOSE_TAG 
 {: 
-	System.out.println("tag close element"); 
+	System.out.println("tag_close_element declaration"); 
+	//RESULT = HtmlEl.createHtmlEl("Tag close element", tcn);
 :}
 				   ;				
 
 tag_open_name ::= 	TITLE {: 
-					System.out.println("tag open name title");
+					System.out.println("tag_open_name title");
+					RESULT = HtmlEl.createHtmlEl("Title");
 					
 				:}
-				|	H1	            {: System.out.println("h1"); 
+				|	H1	            {: System.out.println("tag_open_name h1"); 
+					RESULT = HtmlEl.createHtmlEl("H1"); 
 					:}
-				|	H2              {: System.out.println("h2"); 
+				|	H2              {: System.out.println("tag_open_name h2"); 
+					RESULT = HtmlEl.createHtmlEl("H2"); 
 					:}
-				|   H3              {: System.out.println("h3"); 
+				|   H3              {: System.out.println("tag_open_name h3"); 
+					RESULT = HtmlEl.createHtmlEl("H3"); 
 					:}
-				|	H4              {: System.out.println("h4");
+				|	H4              {: System.out.println("tag_open_name h4");
+					RESULT = HtmlEl.createHtmlEl("H4"); 
 					 :}
-				|	H5              {: System.out.println("h5"); 
+				|	H5              {: System.out.println("tag_open_name h5"); 
+					RESULT = HtmlEl.createHtmlEl("H5"); 
 					:}
-				|	H6              {: System.out.println("h6"); 
+				|	H6              {: System.out.println("tag_open_name h6"); 
+					RESULT = HtmlEl.createHtmlEl("H6"); 
 					:}
-				|	DIV             {: System.out.println("div"); 
+				|	DIV             {: System.out.println("tag_open_name div"); 
+					RESULT = HtmlEl.createHtmlEl("Div"); 
 					:}
-				|	BLOCKQUOTE      {: System.out.println("blockquote"); 
+				|	BLOCKQUOTE      {: System.out.println("tag_open_name blockquote"); 
+					RESULT = HtmlEl.createHtmlEl("Blockquote"); 
 					:}
-				|	LI              {: System.out.println("li"); 
+				|	LI              {: System.out.println("tag_open_name li"); 
+					RESULT = HtmlEl.createHtmlEl("Li"); 
 					:}
-				|	OL              {: System.out.println("ol"); 
+				|	OL              {: System.out.println("tag_open_name ol"); 
+					RESULT = HtmlEl.createHtmlEl("Ol"); 
 					:}
-				|	P               {: System.out.println("p"); 
+				|	P               {: System.out.println("tag_open_name p"); 
+					RESULT = HtmlEl.createHtmlEl("P"); 
 					:}
-				|	UL              {: System.out.println("ul"); 
+				|	UL              {: System.out.println("tag_open_name ul"); 
+					RESULT = HtmlEl.createHtmlEl("Ul"); 
 					:}
-				|	A               {: System.out.println("a"); 
+				|	A               {: System.out.println("tag_open_name a"); 
+					RESULT = HtmlEl.createHtmlEl("A"); 
 					:}
-				|	B               {: System.out.println("b"); 
+				|	B               {: System.out.println("tag_open_name b"); 
+					RESULT = HtmlEl.createHtmlEl("B"); 
 					:}
-				|	BR              {: System.out.println("br"); 
+				|	BR              {: System.out.println("tag_open_name br"); 
+					RESULT = HtmlEl.createHtmlEl("Br"); 
 					:}
-				|	I               {: System.out.println("i"); 
+				|	I               {: System.out.println("tag_open_name i"); 
+					RESULT = HtmlEl.createHtmlEl("I"); 
 					:}
-				|	SMALL           {: System.out.println("small"); 
+				|	SMALL           {: System.out.println("tag_open_name small"); 
+					RESULT = HtmlEl.createHtmlEl("Small"); 
 					:}
-				|	SPAN            {: System.out.println("span"); 
+				|	SPAN            {: System.out.println("tag_open_name span"); 
+					RESULT = HtmlEl.createHtmlEl("Span"); 
 					:}
-				|	STRONG          {: System.out.println("strong"); 
+				|	STRONG          {: System.out.println("tag_open_name strong"); 
+					RESULT = HtmlEl.createHtmlEl("Strong"); 
 					:}
-				|	SUB             {: System.out.println("sub"); 
+				|	SUB             {: System.out.println("tag_open_name sub"); 
+					RESULT = HtmlEl.createHtmlEl("Sub"); 
 					:}
-				|	SUP             {: System.out.println("sup"); 
+				|	SUP             {: System.out.println("tag_open_name sup"); 
+					RESULT = HtmlEl.createHtmlEl("Sup"); 
 					:}
-				|	RECT            {: System.out.println("rect"); 
+				|	RECT            {: System.out.println("tag_open_name rect"); 
+					RESULT = HtmlEl.createHtmlEl("Rect"); 
 					:}
-				|	CIRCLE            {: System.out.println("circle"); 
+				|	CIRCLE            {: System.out.println("tag_open_name circle"); 
+					RESULT = HtmlEl.createHtmlEl("Circle"); 
 					:}
-				|	POLY            {: System.out.println("poly"); 
+				|	POLY            {: System.out.println("tag_open_name poly"); 
+					RESULT = HtmlEl.createHtmlEl("Poly"); 
 					:}
-				|	DEFAULT            {: System.out.println("default"); 
+				|	DEFAULT            {: System.out.println("tag_open_name default"); 
+					RESULT = HtmlEl.createHtmlEl("Default"); 
 					:}
-				|	BDO			{: System.out.println("bdo"); 
+				|	BDO			{: System.out.println("tag_open_name bdo"); 
+					RESULT = HtmlEl.createHtmlEl("Bdo"); 
 					:}
-				|	MAP			{: System.out.println("map"); 
+				|	MAP			{: System.out.println("tag_open_name map"); 
+					RESULT = HtmlEl.createHtmlEl("Map"); 
 					:}
-				|	OBJECT			{: System.out.println("object"); 
+				|	OBJECT			{: System.out.println("tag_open_name object"); 
+					RESULT = HtmlEl.createHtmlEl("Object"); 
 					:}
-				|	TT			{: System.out.println("tt"); 
+				|	TT			{: System.out.println("tag_open_name tt"); 
+					RESULT = HtmlEl.createHtmlEl("Tt"); 
 					:}
-				|	BIG			{: System.out.println("big"); 
+				|	BIG			{: System.out.println("tag_open_name big"); 
+					RESULT = HtmlEl.createHtmlEl("Big"); 
 					:}
-				|	EM			{: System.out.println("em"); 
+				|	EM			{: System.out.println("tag_open_name em"); 
+					RESULT = HtmlEl.createHtmlEl("Em"); 
 					:}
-				|	DFN			{: System.out.println("dfn"); 
+				|	DFN			{: System.out.println("tag_open_name dfn"); 
+					RESULT = HtmlEl.createHtmlEl("Dfn"); 
 					:}
-				|	CODE			{: System.out.println("code"); 
+				|	CODE			{: System.out.println("tag_open_name code"); 
+					RESULT = HtmlEl.createHtmlEl("Code"); 
 					:}
-				|	Q			{: System.out.println("q"); 
+				|	Q			{: System.out.println("tag_open_name q"); 
+					RESULT = HtmlEl.createHtmlEl("Q"); 
 					:}
-				|	SAMP			{: System.out.println("samp"); 
+				|	SAMP			{: System.out.println("tag_open_name samp"); 
+					RESULT = HtmlEl.createHtmlEl("Samp"); 
 					:}
-				|	KBD			{: System.out.println("kbd"); 
+				|	KBD			{: System.out.println("tag_open_name kbd"); 
+					RESULT = HtmlEl.createHtmlEl("Kbd"); 
 					:}
-				|	VAR			{: System.out.println("var"); 
+				|	VAR			{: System.out.println("tag_open_name var"); 
+					RESULT = HtmlEl.createHtmlEl("Var"); 
 					:}
-				|	CITE			{: System.out.println("cite"); 
+				|	CITE			{: System.out.println("tag_open_name cite"); 
+					RESULT = HtmlEl.createHtmlEl("Cite"); 
 					:}
-				|	ABBR			{: System.out.println("abbr"); 
+				|	ABBR			{: System.out.println("tag_open_name abbr"); 
+					RESULT = HtmlEl.createHtmlEl("Abbr"); 
 					:}
-				|	ACRONYM			{: System.out.println("acronym"); 
+				|	ACRONYM			{: System.out.println("tag_open_name acronym"); 
+					RESULT = HtmlEl.createHtmlEl("Acronym"); 
 					:}
-				|	INPUT			{: System.out.println("input"); 
+				|	INPUT			{: System.out.println("tag_open_name input"); 
+					RESULT = HtmlEl.createHtmlEl("Input"); 
 					:}
-				|	SELECT			{: System.out.println("select"); 
+				|	SELECT			{: System.out.println("tag_open_name select"); 
+					RESULT = HtmlEl.createHtmlEl("Select"); 
 					:}
-				|	TEXTAREA			{: System.out.println("textarea"); 
+				|	TEXTAREA			{: System.out.println("tag_open_name textarea"); 
+					RESULT = HtmlEl.createHtmlEl("Textarea"); 
 					:}
-				|	LABEL			{: System.out.println("label"); 
+				|	LABEL			{: System.out.println("tag_open_name label"); 
+					RESULT = HtmlEl.createHtmlEl("Label"); 
 					:}
-				|	BUTTON			{: System.out.println("button"); 
+				|	BUTTON			{: System.out.println("tag_open_name button"); 
+					RESULT = HtmlEl.createHtmlEl("Button"); 
 					:}
-				|	INS			{: System.out.println("ins"); 
+				|	INS			{: System.out.println("tag_open_name ins"); 
+					RESULT = HtmlEl.createHtmlEl("Ins"); 
 					:}
-				|	DEL			{: System.out.println("del"); 
+				|	DEL			{: System.out.println("tag_open_name del"); 
+					RESULT = HtmlEl.createHtmlEl("Del"); 
 					:}
-				|	SCRIPT			{: System.out.println("script"); 
+				|	SCRIPT			{: System.out.println("tag_open_name script"); 
+					RESULT = HtmlEl.createHtmlEl("Script"); 
 					:}
-				|	DL			{: System.out.println("dl"); 
+				|	DL			{: System.out.println("tag_open_name dl"); 
+					RESULT = HtmlEl.createHtmlEl("Dl"); 
 					:}
-				|	DT			{: System.out.println("dt"); 
+				|	DT			{: System.out.println("tag_open_name dt"); 
+					RESULT = HtmlEl.createHtmlEl("Dt"); 
 					:}
-				|	DD			{: System.out.println("dd"); 
+				|	DD			{: System.out.println("tag_open_name dd"); 
+					RESULT = HtmlEl.createHtmlEl("Dd"); 
 					:}
-				|	PRE			{: System.out.println("pre"); 
+				|	PRE			{: System.out.println("tag_open_name pre"); 
+					RESULT = HtmlEl.createHtmlEl("Pre"); 
 					:}
-				|	ADDRESS			{: System.out.println("address"); 
+				|	ADDRESS			{: System.out.println("tag_open_name address"); 
+					RESULT = HtmlEl.createHtmlEl("Address"); 
 					:}
-				|	FIELDSET			{: System.out.println("fieldset"); 
+				|	FIELDSET			{: System.out.println("tag_open_name fieldset"); 
+					RESULT = HtmlEl.createHtmlEl("Fieldset"); 
 					:}
-				|	TABLE			{: System.out.println("table"); 
+				|	TABLE			{: System.out.println("tag_open_name table"); 
+					RESULT = HtmlEl.createHtmlEl("Table"); 
 					:}
-				|	FORM			{: System.out.println("form"); 
+				|	FORM			{: System.out.println("tag_open_name form"); 
+					RESULT = HtmlEl.createHtmlEl("Form"); 
 					:}
-				|	PROFILE			{: System.out.println("profile"); 
+				|	PROFILE			{: System.out.println("tag_open_name profile"); 
+					RESULT = HtmlEl.createHtmlEl("Profile"); 
 					:}
-				|	NAME			{: System.out.println("name"); 
+				|	NAME			{: System.out.println("tag_open_name name"); 
+					RESULT = HtmlEl.createHtmlEl("Name"); 
 					:}
-				|	CONTENT			{: System.out.println("content"); 
+				|	CONTENT			{: System.out.println("tag_open_name content"); 
+					RESULT = HtmlEl.createHtmlEl("Content"); 
 					:}
-				|	SCHEME			{: System.out.println("scheme");
+				|	SCHEME			{: System.out.println("tag_open_name scheme");
+					RESULT = HtmlEl.createHtmlEl("Scheme"); 
 					 :}
-				|	HREFLANG			{: System.out.println("hreflang"); 
+				|	HREFLANG			{: System.out.println("tag_open_name hreflang"); 
+					RESULT = HtmlEl.createHtmlEl("Hreflang"); 
 					:}
-				|	REL			{: System.out.println("rel"); 
+				|	REL			{: System.out.println("tag_open_name rel"); 
+					RESULT = HtmlEl.createHtmlEl("Rel"); 
 					:}
-				|	REV			{: System.out.println("rev"); 
+				|	REV			{: System.out.println("tag_open_name rev"); 
+					RESULT = HtmlEl.createHtmlEl("Rev"); 
 					:}
-				|	MEDIA			{: System.out.println("media"); 
+				|	MEDIA			{: System.out.println("tag_open_name media"); 
+					RESULT = HtmlEl.createHtmlEl("Media"); 
 					:}
-				|	NOSCRIPT			{: System.out.println("noscript"); 
+				|	NOSCRIPT			{: System.out.println("tag_open_name noscript"); 
+					RESULT = HtmlEl.createHtmlEl("Noscript"); 
 					:}
-				|	DATETIME			{: System.out.println("datetime"); 
+				|	DATETIME			{: System.out.println("tag_open_name datetime"); 
+					RESULT = HtmlEl.createHtmlEl("Datetime"); 
 					:}
-				|	SHAPE			{: System.out.println("shape"); 
+				|	SHAPE			{: System.out.println("tag_open_name shape"); 
+					RESULT = HtmlEl.createHtmlEl("Shape"); 
 					:}
-				|	COORDS			{: System.out.println("coords"); 
+				|	COORDS			{: System.out.println("tag_open_name coords"); 
+					RESULT = HtmlEl.createHtmlEl("Coords"); 
 					:}
-				|	PARAM			{: System.out.println("param"); 
+				|	PARAM			{: System.out.println("tag_open_name param"); 
+					RESULT = HtmlEl.createHtmlEl("Param"); 
 					:}
-				|	DECLARE			{: System.out.println("declare"); 
+				|	DECLARE			{: System.out.println("tag_open_name declare"); 
+					RESULT = HtmlEl.createHtmlEl("Declare"); 
 					:}
-				|	CLASSID			{: System.out.println("classid"); 
+				|	CLASSID			{: System.out.println("tag_open_name classid"); 
+					RESULT = HtmlEl.createHtmlEl("Classid"); 
 					:}
-				|	CODEBASE			{: System.out.println("codebase"); 
+				|	CODEBASE			{: System.out.println("tag_open_name codebase"); 
+					RESULT = HtmlEl.createHtmlEl("Codebase"); 
 					:}
-				|	DATA			{: System.out.println("data"); 
+				|	DATA			{: System.out.println("tag_open_name data"); 
+					RESULT = HtmlEl.createHtmlEl("Data"); 
 					:}
-				|	CODETYPE			{: System.out.println("codetype"); 
+				|	CODETYPE			{: System.out.println("tag_open_name codetype"); 
+					RESULT = HtmlEl.createHtmlEl("Codetype"); 
 					:}
-				|	ARCHIVE			{: System.out.println("archive"); 
+				|	ARCHIVE			{: System.out.println("tag_open_name archive"); 
+					RESULT = HtmlEl.createHtmlEl("Archive"); 
 					:}
-				|	STANDBY			{: System.out.println("standby"); 
+				|	STANDBY			{: System.out.println("tag_open_name standby"); 
+					RESULT = HtmlEl.createHtmlEl("Standby"); 
 					:}
-				|	VALUE			{: System.out.println("value"); 
+				|	VALUE			{: System.out.println("tag_open_name value"); 
+					RESULT = HtmlEl.createHtmlEl("Value"); 
 					:}
-				|	VALUETYPE			{: System.out.println("valuetype"); 
+				|	VALUETYPE			{: System.out.println("tag_open_name valuetype"); 
+					RESULT = HtmlEl.createHtmlEl("Valuetype"); 
 					:}
-				|	SRC			{: System.out.println("src"); 
+				|	SRC			{: System.out.println("tag_open_name src"); 
+					RESULT = HtmlEl.createHtmlEl("Src"); 
 					:}
-				|	ALT			{: System.out.println("alt"); 
+				|	ALT			{: System.out.println("tag_open_name alt"); 
+					RESULT = HtmlEl.createHtmlEl("Alt"); 
 					:}
-				|	LONGDESC			{: System.out.println("longdesc"); 
+				|	LONGDESC			{: System.out.println("tag_open_name longdesc"); 
+					RESULT = HtmlEl.createHtmlEl("Longdesc"); 
 					:}
-				|	ISMAP			{: System.out.println("ismap"); 
+				|	ISMAP			{: System.out.println("tag_open_name ismap"); 
+					RESULT = HtmlEl.createHtmlEl("Ismap"); 
 					:}
-				|	NOHREF			{: System.out.println("nohref"); 
+				|	NOHREF			{: System.out.println("tag_open_name nohref"); 
+					RESULT = HtmlEl.createHtmlEl("Nohref"); 
 					:}
-				|	ACTION			{: System.out.println("action"); 
+				|	ACTION			{: System.out.println("tag_open_name action"); 
+					RESULT = HtmlEl.createHtmlEl("Action"); 
 					:}
-				|	METHOD			{: System.out.println("method"); 
+				|	METHOD			{: System.out.println("tag_open_name method"); 
+					RESULT = HtmlEl.createHtmlEl("Method"); 
 					:}
-				|	ENCTYPE			{: System.out.println("enctype"); 
+				|	ENCTYPE			{: System.out.println("tag_open_name enctype"); 
+					RESULT = HtmlEl.createHtmlEl("Enctype"); 
 					:}
-				|	ACCEPT			{: System.out.println("accept"); 
+				|	ACCEPT			{: System.out.println("tag_open_name accept"); 
+					RESULT = HtmlEl.createHtmlEl("Accept"); 
 					:}
-				|	CHARSET			{: System.out.println("charset"); 
+				|	CHARSET			{: System.out.println("tag_open_name charset"); 
+					RESULT = HtmlEl.createHtmlEl("Charset"); 
 					:}
-				|	FOR			{: System.out.println("for"); 
+				|	FOR			{: System.out.println("tag_open_name for"); 
+					RESULT = HtmlEl.createHtmlEl("For"); 
 					:}
-				|	TEXT			{: System.out.println("text"); 
+				|	TEXT			{: System.out.println("tag_open_name text"); 
+					RESULT = HtmlEl.createHtmlEl("Text"); 
 					:}
-				|	PASSWORD			{: System.out.println("password"); 
+				|	PASSWORD			{: System.out.println("tag_open_name password"); 
+					RESULT = HtmlEl.createHtmlEl("Password"); 
 					:}
-				|	CHECKBOX			{: System.out.println("checkbox"); 
+				|	CHECKBOX			{: System.out.println("tag_open_name checkbox"); 
+					RESULT = HtmlEl.createHtmlEl("Checkbox"); 
 					:}
-				|	RADIO			{: System.out.println("radio"); 
+				|	RADIO			{: System.out.println("tag_open_name radio"); 
+					RESULT = HtmlEl.createHtmlEl("Radio"); 
 					:}
-				|	SUBMIT			{: System.out.println("submit"); 
+				|	SUBMIT			{: System.out.println("tag_open_name submit"); 
+					RESULT = HtmlEl.createHtmlEl("Submit"); 
 					:}
-				|	RESET			{: System.out.println("reset"); 
+				|	RESET			{: System.out.println("tag_open_name reset"); 
+					RESULT = HtmlEl.createHtmlEl("Reset"); 
 					:}
-				|	FILE			{: System.out.println("file");
+				|	FILE			{: System.out.println("tag_open_name file"); 
+					RESULT = HtmlEl.createHtmlEl("File");:}
+				|	HIDDEN			{: System.out.println("tag_open_name hidden"); 
+					RESULT = HtmlEl.createHtmlEl("Hidden"); 
 					:}
-				|	HIDDEN			{: System.out.println("hidden"); 
+				|	CHECKED			{: System.out.println("tag_open_name checked"); 
+					RESULT = HtmlEl.createHtmlEl("Checked"); 
 					:}
-				|	CHECKED			{: System.out.println("checked"); 
+				|	DISABLED			{: System.out.println("tag_open_name disabled"); 
+					RESULT = HtmlEl.createHtmlEl("Disabled"); 
 					:}
-				|	DISABLED			{: System.out.println("disabled"); 
+				|	READONLY			{: System.out.println("tag_open_name readonly"); 
+					RESULT = HtmlEl.createHtmlEl("Readonly"); 
 					:}
-				|	READONLY			{: System.out.println("readonly"); 
+				|	SIZE			{: System.out.println("tag_open_name size"); 
+					RESULT = HtmlEl.createHtmlEl("Size"); 
 					:}
-				|	SIZE			{: System.out.println("size"); 
+				|	MAXLENGTH			{: System.out.println("tag_open_name maxlength"); 
+					RESULT = HtmlEl.createHtmlEl("Maxlength"); 
 					:}
-				|	MAXLENGTH			{: System.out.println("maxlength"); 
+				|	ONSELECT			{: System.out.println("tag_open_name onselect"); 
+					RESULT = HtmlEl.createHtmlEl("Onselect"); 
 					:}
-				|	ONSELECT			{: System.out.println("onselect"); 
+				|	ONCHANGE			{: System.out.println("tag_open_name onchange"); 
+					RESULT = HtmlEl.createHtmlEl("Onchange"); 
 					:}
-				|	ONCHANGE			{: System.out.println("onchange"); 
+				|	MULTIPLE			{: System.out.println("tag_open_name multiple"); 
+					RESULT = HtmlEl.createHtmlEl("Multiple"); 
 					:}
-				|	MULTIPLE			{: System.out.println("multiple"); 
+				|	OPTGROUP			{: System.out.println("tag_open_name optgroup"); 
+					RESULT = HtmlEl.createHtmlEl("Optgroup"); 
 					:}
-				|	OPTGROUP			{: System.out.println("optgroup"); 
+				|	OPTION			{: System.out.println("tag_open_name option"); 
+					RESULT = HtmlEl.createHtmlEl("Option"); 
 					:}
-				|	OPTION			{: System.out.println("option"); 
+				|	ROWS			{: System.out.println("tag_open_name rows"); 
+					RESULT = HtmlEl.createHtmlEl("Rows"); 
 					:}
-				|	ROWS			{: System.out.println("rows"); 
+				|	COLS			{: System.out.println("tag_open_name cols"); 
+					RESULT = HtmlEl.createHtmlEl("Cols"); 
 					:}
-				|	COLS			{: System.out.println("cols"); 
+				|	LEGEND			{: System.out.println("tag_open_name legend"); 
+					RESULT = HtmlEl.createHtmlEl("Legend"); 
 					:}
-				|	LEGEND			{: System.out.println("legend"); 
+				|	VOID			{: System.out.println("tag_open_name void"); 
+					RESULT = HtmlEl.createHtmlEl("Void"); 
 					:}
-				|	VOID			{: System.out.println("void"); 
+				|	ABOVE			{: System.out.println("tag_open_name above"); 
+					RESULT = HtmlEl.createHtmlEl("Above"); 
 					:}
-				|	ABOVE			{: System.out.println("above"); 
+				|	BELOW			{: System.out.println("tag_open_name below"); 
+					RESULT = HtmlEl.createHtmlEl("Below"); 
 					:}
-				|	BELOW			{: System.out.println("below"); 
+				|	HSIDES			{: System.out.println("tag_open_name hsides"); 
+					RESULT = HtmlEl.createHtmlEl("Hsides"); 
 					:}
-				|	HSIDES			{: System.out.println("hsides"); 
+				|	LHS			{: System.out.println("tag_open_name lhs"); 
+					RESULT = HtmlEl.createHtmlEl("Lhs"); 
 					:}
-				|	LHS			{: System.out.println("lhs"); 
+				|	RHS			{: System.out.println("tag_open_name rhs"); 
+					RESULT = HtmlEl.createHtmlEl("Rhs"); 
 					:}
-				|	RHS			{: System.out.println("rhs"); 
+				|	VSIDES			{: System.out.println("tag_open_name vsides"); 
+					RESULT = HtmlEl.createHtmlEl("Vsides"); 
 					:}
-				|	VSIDES			{: System.out.println("vsides"); 
+				|	BOX			{: System.out.println("tag_open_name box"); 
+					RESULT = HtmlEl.createHtmlEl("Box"); 
 					:}
-				|	BOX			{: System.out.println("box"); 
+				|	BORDER			{: System.out.println("tag_open_name border"); 
+					RESULT = HtmlEl.createHtmlEl("Border"); 
 					:}
-				|	BORDER			{: System.out.println("border"); 
+				|	NONE			{: System.out.println("tag_open_name none"); 
+					RESULT = HtmlEl.createHtmlEl("None"); 
 					:}
-				|	NONE			{: System.out.println("none"); 
+				|	GROUPS			{: System.out.println("tag_open_name groups"); 
+					RESULT = HtmlEl.createHtmlEl("Groups"); 
 					:}
-				|	GROUPS			{: System.out.println("groups"); 
+				|	ALL			{: System.out.println("tag_open_name all"); 
+					RESULT = HtmlEl.createHtmlEl("All"); 
 					:}
-				|	ALL			{: System.out.println("all"); 
+				|	CHAR			{: System.out.println("tag_open_name char"); 
+					RESULT = HtmlEl.createHtmlEl("Char"); 
 					:}
-				|	CHAR			{: System.out.println("char"); 
+				|	CHAROFF			{: System.out.println("tag_open_name charoff"); 
+					RESULT = HtmlEl.createHtmlEl("Charoff"); 
 					:}
-				|	CHAROFF			{: System.out.println("charoff"); 
+				|	LEFT			{: System.out.println("tag_open_name left"); 
+					RESULT = HtmlEl.createHtmlEl("Left"); 
 					:}
-				|	LEFT			{: System.out.println("left"); 
+				|	CENTER			{: System.out.println("tag_open_name center"); 
+					RESULT = HtmlEl.createHtmlEl("Center"); 
 					:}
-				|	CENTER			{: System.out.println("center"); 
+				|	RIGHT			{: System.out.println("tag_open_name right"); 
+					RESULT = HtmlEl.createHtmlEl("Right"); 
 					:}
-				|	RIGHT			{: System.out.println("right"); 
+				|	JUSTIFY			{: System.out.println("tag_open_name justify"); 
+					RESULT = HtmlEl.createHtmlEl("Justify"); 
 					:}
-				|	JUSTIFY			{: System.out.println("justify"); 
+				|	VALIGN			{: System.out.println("tag_open_name valign"); 
+					RESULT = HtmlEl.createHtmlEl("Valign"); 
 					:}
-				|	VALIGN			{: System.out.println("valign"); 
+				|	TOP			{: System.out.println("tag_open_name top"); 
+					RESULT = HtmlEl.createHtmlEl("Top"); 
 					:}
-				|	TOP			{: System.out.println("top"); 
+				|	MIDDLE			{: System.out.println("tag_open_name middle"); 
+					RESULT = HtmlEl.createHtmlEl("Middle"); 
 					:}
-				|	MIDDLE			{: System.out.println("middle"); 
+				|	BOTTOM			{: System.out.println("tag_open_name bottom"); 
+					RESULT = HtmlEl.createHtmlEl("Bottom"); 
 					:}
-				|	BOTTOM			{: System.out.println("bottom"); 
+				|	BASELINE			{: System.out.println("tag_open_name baseline"); 
+					RESULT = HtmlEl.createHtmlEl("Baseline"); 
 					:}
-				|	BASELINE			{: System.out.println("baseline"); 
+				|	CAPTION			{: System.out.println("tag_open_name caption"); 
+					RESULT = HtmlEl.createHtmlEl("Caption"); 
 					:}
-				|	CAPTION			{: System.out.println("caption"); 
+				|	THEAD			{: System.out.println("tag_open_name thead"); 
+					RESULT = HtmlEl.createHtmlEl("Thead"); 
 					:}
-				|	THEAD			{: System.out.println("thead"); 
+				|	TFOOT			{: System.out.println("tag_open_name tfoot"); 
+					RESULT = HtmlEl.createHtmlEl("Tfoot"); 
 					:}
-				|	TFOOT			{: System.out.println("tfoot"); 
+				|	TBODY			{: System.out.println("tag_open_name tbody"); 
+					RESULT = HtmlEl.createHtmlEl("Tbody"); 
 					:}
-				|	TBODY			{: System.out.println("tbody"); 
+				|	COLGROUP			{: System.out.println("tag_open_name colgroup"); 
+					RESULT = HtmlEl.createHtmlEl("Colgroup"); 
 					:}
-				|	COLGROUP			{: System.out.println("colgroup"); 
+				|	COL			{: System.out.println("tag_open_name col"); 
+					RESULT = HtmlEl.createHtmlEl("Col"); 
 					:}
-				|	COL			{: System.out.println("col"); 
+				|	TR			{: System.out.println("tag_open_name tr"); 
+					RESULT = HtmlEl.createHtmlEl("Tr");:}
+				|	TH			{: System.out.println("tag_open_name th"); 
+					RESULT = HtmlEl.createHtmlEl("Th"); 
 					:}
-				|	TR			{: System.out.println("tr"); 
+				|	TD			{: System.out.println("tag_open_name td"); 
+					RESULT = HtmlEl.createHtmlEl("Td"); 
 					:}
-				|	TH			{: System.out.println("th"); 
+				|	SUMMARY			{: System.out.println("tag_open_name summary"); 
+					RESULT = HtmlEl.createHtmlEl("Summary"); 
 					:}
-				|	TD			{: System.out.println("td"); 
+				|	FRAME			{: System.out.println("tag_open_name frame"); 
+					RESULT = HtmlEl.createHtmlEl("Frame"); 
 					:}
-				|	SUMMARY			{: System.out.println("summary"); 
+				|	RULES			{: System.out.println("tag_open_name rules"); 
+					RESULT = HtmlEl.createHtmlEl("Rules"); 
 					:}
-				|	FRAME			{: System.out.println("frame"); 
+				|	CELLSPACING			{: System.out.println("tag_open_name cellspacing"); 
+					RESULT = HtmlEl.createHtmlEl("Cellspacing"); 
 					:}
-				|	RULES			{: System.out.println("rules"); 
+				|	CELLPADDING			{: System.out.println("tag_open_name cellpadding"); 
+					RESULT = HtmlEl.createHtmlEl("Cellpadding"); 
 					:}
-				|	CELLSPACING			{: System.out.println("cellspacing"); 
+				|	ROW			{: System.out.println("tag_open_name row"); 
+					RESULT = HtmlEl.createHtmlEl("Row"); 
 					:}
-				|	CELLPADDING			{: System.out.println("cellpadding"); 
+				|	ROWGROUP			{: System.out.println("tag_open_name rowgroup"); 
+					RESULT = HtmlEl.createHtmlEl("Rowgroup"); 
 					:}
-				|	ROW			{: System.out.println("row"); 
+				|	AXIS			{: System.out.println("tag_open_name axis"); 
+					RESULT = HtmlEl.createHtmlEl("Axis"); 
 					:}
-				|	ROWGROUP			{: System.out.println("rowgroup"); 
+				|	HEADERS			{: System.out.println("tag_open_name headers"); 
+					RESULT = HtmlEl.createHtmlEl("Headers"); 
 					:}
-				|	AXIS			{: System.out.println("axis"); 
+				|	SCOPE			{: System.out.println("tag_open_name scope"); 
+					RESULT = HtmlEl.createHtmlEl("Scope"); 
 					:}
-				|	HEADERS			{: System.out.println("headers"); 
+				|	ROWSPAN			{: System.out.println("tag_open_name rowspan"); 
+					RESULT = HtmlEl.createHtmlEl("Rowspan"); 
 					:}
-				|	SCOPE			{: System.out.println("scope"); 
+				|	COLSPAN			{: System.out.println("tag_open_name colspan"); 
+					RESULT = HtmlEl.createHtmlEl("Colspan"); 
 					:}
-				|	ROWSPAN			{: System.out.println("rowspan"); 
+				|	DIR			{: System.out.println("tag_open_name dir"); 
+					RESULT = HtmlEl.createHtmlEl("Dir"); 
 					:}
-				|	COLSPAN			{: System.out.println("colspan"); 
+				|	AREA            {: System.out.println("tag_open_name area"); 
+					RESULT = HtmlEl.createHtmlEl("Area"); 
 					:}
-				|	DIR			{: System.out.println("dir"); 
+				|	BASE            {: System.out.println("tag_open_name base"); 
+					RESULT = HtmlEl.createHtmlEl("Base"); 
 					:}
-				|	AREA            {: System.out.println("area"); 
+				|	IMG             {: System.out.println("tag_open_name img"); 
+					RESULT = HtmlEl.createHtmlEl("Img"); 
 					:}
-				|	BASE            {: System.out.println("base"); 
+				|	HR              {: System.out.println("tag_open_name hr"); 
+					RESULT = HtmlEl.createHtmlEl("Hr"); 
 					:}
-				|	IMG             {: System.out.println("img"); 
+				|	META            {: System.out.println("tag_open_name meta"); 
+					RESULT = HtmlEl.createHtmlEl("Meta"); 
 					:}
-				|	HR              {: System.out.println("hr"); 
-					:}
-				|	META            {: System.out.println("meta"); 
-					:}
-				|	LINK            {: System.out.println("link"); 
+				|	LINK            {: System.out.println("tag_open_name link"); 
+					RESULT = HtmlEl.createHtmlEl("Link"); 
 					:}
 				;
 				
 							
 attribute_list ::= 	attribute:a attribute_list:al {: 
-						System.out.println("attribute_list 1"); 
+						System.out.println("attribute_list declaration 1"); 
+						//RESULT = HtmlEl.createHtmlEl("attribute_list 1", a, al);
+						RESULT = HtmlEl.createHtmlEl(null, a, al);
 					:}
 				|	attribute:a	{: 
-						System.out.println("attribute_list");
+						System.out.println("attribute_list declaration");
+						//RESULT = HtmlEl.createHtmlEl("attribute_list 2", a);
+						RESULT = HtmlEl.createHtmlEl(null, a);
 					:}			
 				;
 	
 attribute ::=	attribute_name:an ATTR_ASSIGN QUATATION_MARKS attribute_content:ac QUATATION_MARKS 
 				{: 
-					System.out.println("attribute"); 
+					System.out.println("attribute declaration"); 
+					RESULT = HtmlEl.createHtmlEl(an.getData() + " = \"" + ac.getData() + "\"", an, ac);
 				:}
 			;
 			
 attribute_content ::= STRING:s	{: System.out.println("attribute_content string"); 
+					RESULT = HtmlEl.createHtmlEl("Text"); 
 					:}
 					| NUMBER:n	{: System.out.println("attribute_content number");  
+					RESULT = HtmlEl.createHtmlEl("Text"); 
 					:}
 					;
 
-attribute_name ::= 	CLASS	{: System.out.println("attribute class");  
+attribute_name ::= 	CLASS	{: System.out.println("attribute_name class");  
+					RESULT = HtmlEl.createHtmlEl("Class"); 
 					:}
-				|	ID		{: System.out.println("attribute id");  
+				|	ID		{: System.out.println("attribute_name id");  
+					RESULT = HtmlEl.createHtmlEl("Id"); 
 					:}
-				|	ALIGN	{: System.out.println("attribute align");  
+				|	ALIGN	{: System.out.println("attribute_name align");  
+					RESULT = HtmlEl.createHtmlEl("Align"); 
 					:}
-				|	STYLE	{: System.out.println("attribute style");  
+				|	STYLE	{: System.out.println("attribute_name style");  
+					RESULT = HtmlEl.createHtmlEl("Style"); 
 					:}
-				|	TABINDEX	{: System.out.println("attribute tabindex");  
+				|	TABINDEX	{: System.out.println("attribute_name tabindex");  
+					RESULT = HtmlEl.createHtmlEl("Tabindex"); 
 					:}
-				|	ONCLICK	{: System.out.println("attribute onclick");  
+				|	ONCLICK	{: System.out.println("attribute_name onclick");  
+					RESULT = HtmlEl.createHtmlEl("Onclick"); 
 					:}
-				|	ONDBLCLICK	{: System.out.println("attribute ondblclick");  
+				|	ONDBLCLICK	{: System.out.println("attribute_name ondblclick");  
+					RESULT = HtmlEl.createHtmlEl("Ondblclick"); 
 					:}
-				|	ONMOUSEDOWN	{: System.out.println("attribute onmousedown");  
+				|	ONMOUSEDOWN	{: System.out.println("attribute_name onmousedown");  
+					RESULT = HtmlEl.createHtmlEl("Onmousedown"); 
 					:}
-				|	ONMOUSEUP	{: System.out.println("attribute onmouseup");  
+				|	ONMOUSEUP	{: System.out.println("attribute_name onmouseup");  
+					RESULT = HtmlEl.createHtmlEl("Onmouseup"); 
 					:}
-				|	ONMOUSEMOVE	{: System.out.println("attribute onmousemove");  
+				|	ONMOUSEMOVE	{: System.out.println("attribute_name onmousemove");  
+					RESULT = HtmlEl.createHtmlEl("Onmousemove"); 
 					:}
-				|	ONMOUSEOUT	{: System.out.println("attribute onmouseout");  
+				|	ONMOUSEOUT	{: System.out.println("attribute_name onmouseout");  
+					RESULT = HtmlEl.createHtmlEl("Onmouseout"); 
 					:}
-		attribute{: System.out.println("attribute onkeypress");  
+				|	ONKEYPRESS	{: System.out.println("attribute_name onkeypress");  
+					RESULT = HtmlEl.createHtmlEl("Onkeypress"); 
 					:}
-				|	ONKEYDOWN	{: System.out.println("attribute onkeydown");  
+				|	ONKEYDOWN	{: System.out.println("attribute_name onkeydown");  
+					RESULT = HtmlEl.createHtmlEl("Onkeydown"); 
 					:}
-				|	ONKEYUP	{: System.out.println("attribute onkeyup");  
+				|	ONKEYUP	{: System.out.println("attribute_name onkeyup");  
+					RESULT = HtmlEl.createHtmlEl("Onkeyup"); 
 					:}
-				|	ACCESSKEY	{: System.out.println("attribute accesskey");  
+				|	ACCESSKEY	{: System.out.println("attribute_name accesskey");  
+					RESULT = HtmlEl.createHtmlEl("Accesskey"); 
 					:}
-				|	ONFOCUS	{: System.out.println("attribute onfocus");  
+				|	ONFOCUS	{: System.out.println("attribute_name onfocus");  
+					RESULT = HtmlEl.createHtmlEl("Onfocus"); 
 					:}
-				|	ONBLUR	{: System.out.println("attribute onblur");  
+				|	ONBLUR	{: System.out.println("attribute_name onblur");  
+					RESULT = HtmlEl.createHtmlEl("Onblur"); 
 					:}
-				|	HREF	{: System.out.println("attribute href");  
+				|	HREF	{: System.out.println("attribute_name href");  
+					RESULT = HtmlEl.createHtmlEl("Href"); 
 					:}
-				|	ONSUBMIT	{: System.out.println("attribute onsubmit");  
+				|	ONSUBMIT	{: System.out.println("attribute_name onsubmit");  
+					RESULT = HtmlEl.createHtmlEl("Onsubmit"); 
 					:}
-				|	ONRESET	{: System.out.println("attribute onreset");  
+				|	ONRESET	{: System.out.println("attribute_name onreset");  
+					RESULT = HtmlEl.createHtmlEl("Onreset"); 
 					:}
-				|	TYPE	{: System.out.println("attribute type");  
+				|	TYPE	{: System.out.println("attribute_name type");  
+					RESULT = HtmlEl.createHtmlEl("Type"); 
 					:}
-				|	HEIGHT	{: System.out.println("attribute height");  
+				|	HEIGHT	{: System.out.println("attribute_name height");  
+					RESULT = HtmlEl.createHtmlEl("Height"); 
 					:}
-				|	WIDTH	{: System.out.println("attribute width");  
+				|	WIDTH	{: System.out.println("attribute_name width");  
+					RESULT = HtmlEl.createHtmlEl("Width"); 
 					:}
-				|	USEMAP	{: System.out.println("attribute usemap");  
+				|	USEMAP	{: System.out.println("attribute_name usemap");  
+					RESULT = HtmlEl.createHtmlEl("Usemap"); 
 					:}
-				| 	HTTPEQUIV {: System.out.println("attribute http_equiv");  
+				| 	HTTPEQUIV {: System.out.println("attribute_name http_equiv");  
+					RESULT = HtmlEl.createHtmlEl("Http_equiv"); 
 					:}
-				| 	XML_LANG {: System.out.println("attribute xml_lang");  
+				| 	XML_LANG {: System.out.println("attribute_name xml_lang");  
+					RESULT = HtmlEl.createHtmlEl("Xml_lang"); 
 					:}
-				| 	ACCEPT_CHARSET {: System.out.println("attribute accept_charset");  
+				| 	ACCEPT_CHARSET {: System.out.println("attribute_name accept_charset");  
+					RESULT = HtmlEl.createHtmlEl("Accept_charset"); 
 					:}
-				| 	XML_SPACE {: System.out.println("attribute xml_space");  
+				| 	XML_SPACE {: System.out.println("attribute_name xml_space");  
+					RESULT = HtmlEl.createHtmlEl("Xml_space"); 
 					:}
-				| 	LANG {: System.out.println("attribute lang");  
+				| 	LANG {: System.out.println("attribute_name lang");  
+					RESULT = HtmlEl.createHtmlEl("Lang"); 
 					:}
 				;
+expr_list ::= expr_list expr:e SEMI         {: System.out.println(e); :}
+            | expr:e SEMI                   {: System.out.println(e); :}
+            ;
+            
+expr      ::= expr:e1 PLUS  expr:e2         {: RESULT = e1+e2;        :}
+             | expr:e1 MINUS expr:e2        {: RESULT = e1-e2;        :}
+             | expr:e1 TIMES expr:e2        {: RESULT = e1*e2;        :}
+             | MINUS expr:e                 {: RESULT = -e;           :}
+             %prec UMINUS
+             | LPAREN expr:e RPAREN	         {: RESULT = e;           :}
+             | NUMBER:n	                     {: RESULT = n;           :}
+             ;
